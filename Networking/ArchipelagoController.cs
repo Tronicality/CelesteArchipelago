@@ -89,7 +89,6 @@ namespace Celeste.Mod.CelesteArchipelago
             new PatchedOuiJournal(),
             new PatchedPlayer(),
             new PatchedSaveData(),
-            new PatchedPlayer(),
             new PatchedStrawberry(),
             new PatchedBerryCounter(),
         };
