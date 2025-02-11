@@ -1,9 +1,7 @@
-using System;
 using Microsoft.Xna.Framework;
 
 namespace Celeste.Mod.CelesteArchipelago
 {
-
     public class PatchedPlayer : IPatchable
     {
         public void Load()
@@ -31,6 +29,8 @@ namespace Celeste.Mod.CelesteArchipelago
 
         private static void OnSpawn(Player player)
         {
+            ArchipelagoController.Instance.trapManager.LoadTraps();
+
             if (ArchipelagoController.Instance.DeathLinkStatus == DeathLinkStatus.Dying)
             {
                 ArchipelagoController.Instance.DeathLinkStatus = DeathLinkStatus.None;
@@ -39,6 +39,8 @@ namespace Celeste.Mod.CelesteArchipelago
 
         private static void OnDie(Player player)
         {
+            ArchipelagoController.Instance.trapManager.IncrementAllDeathCounts();
+
             ArchipelagoController.Instance.SendDeathLinkCallback();
             ArchipelagoController.Instance.DeathLinkStatus = DeathLinkStatus.Dying;
             ArchipelagoController.Instance.isLocalDeath = true;
