@@ -109,6 +109,9 @@ namespace Celeste.Mod.CelesteArchipelago
                     if (entity == null) return;
                     SaveData.Instance.AddStrawberry(area, entity.Value, false);
                     break;
+                case CollectableType.PICO_BERRY:
+                    // Nothing to "collect" here, only changes it pico_berries become part of strawberries or separate goal level
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException($"CollectableType {collectable} not implemented.");
             }
@@ -133,6 +136,9 @@ namespace Celeste.Mod.CelesteArchipelago
                     break;
                 case CollectableType.STRAWBERRY:
                     StrawberryCount += 1;
+                    break;
+                case CollectableType.PICO_BERRY:
+                    // Nothing to "collect" here, only changes it pico_berries become part of strawberries or separate goal level
                     break;
                 default:
                     throw new ArgumentOutOfRangeException($"CollectableType {area} {collectable} {entity} not implemented.");

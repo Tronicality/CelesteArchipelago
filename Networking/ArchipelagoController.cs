@@ -4,12 +4,10 @@ using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.MessageLog.Messages;
 using Archipelago.MultiClient.Net.Packets;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
-using Archipelago.MultiClient.Net.MessageLog.Parts;
 
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 namespace Celeste.Mod.CelesteArchipelago
 {
@@ -90,6 +88,7 @@ namespace Celeste.Mod.CelesteArchipelago
             new PatchedPlayer(),
             new PatchedStrawberry(),
             new PatchedBerryCounter(),
+            new PatchedPicoBerry(),
         };
 
         public ArchipelagoController(Game game) : base(game)

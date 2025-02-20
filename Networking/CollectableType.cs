@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Celeste.Mod.CelesteArchipelago
+﻿namespace Celeste.Mod.CelesteArchipelago
 {
     public enum CollectableType
     {
@@ -12,6 +6,7 @@ namespace Celeste.Mod.CelesteArchipelago
         CASSETTE = 1,
         COMPLETION = 2,
         HEARTGEM = 3,
-        STRAWBERRY = 4
+        STRAWBERRY = 4,
+        PICO_BERRY = 5,
     }
 }
