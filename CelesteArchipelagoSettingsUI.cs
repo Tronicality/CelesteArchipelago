@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 
 namespace Celeste.Mod.CelesteArchipelago
 {
@@ -11,9 +12,9 @@ namespace Celeste.Mod.CelesteArchipelago
 
         public static void DeathlinkModeSelector(TextMenu menu)
         {
-            TextMenu.Option<DeathLinkMode> modeSelectionMenu = new("Deathlink Mode");
+            TextMenu.Option<DeathLinkMode> modeSelectionMenu = new(Dialog.Clean("archipelago_settings_deathlink_mode_label_title"));
 
-            modeSelectionMenu.Add(DeathLinkMode.Room.ToString(), DeathLinkMode.Room, true);
+            modeSelectionMenu.Add(Dialog.Clean($"archipelago_settings_deathlink_mode_label_room"), DeathLinkMode.Room, true);
             foreach (DeathLinkMode mode in Enum.GetValues(typeof(DeathLinkMode)))
             {
                 if (mode == DeathLinkMode.Room)
@@ -21,8 +22,9 @@ namespace Celeste.Mod.CelesteArchipelago
                     continue;
                 }
 
+                string label = "archipelago_settings_deathlink_mode_label_" + mode.ToString().ToLower();
                 bool selected = mode == CelesteArchipelagoModule.Settings.DeathLinkMode;
-                modeSelectionMenu.Add(mode.ToString(), mode, selected);
+                modeSelectionMenu.Add(Dialog.Clean(label), mode, selected);
             }
 
             modeSelectionMenu.Change(selectedMode => {
@@ -30,10 +32,12 @@ namespace Celeste.Mod.CelesteArchipelago
             });
 
             menu.Insert(menu.Items.Count - 2, modeSelectionMenu);
-            modeSelectionMenu.AddDescription(menu, $"{DeathLinkMode.ChapterNoGoal}: {DeathLinkMode.Chapter} mode until goal level, then switches to {DeathLinkMode.Room} mode");
-            modeSelectionMenu.AddDescription(menu, $"{DeathLinkMode.Chapter}: Restarts the whole chapter");
-            modeSelectionMenu.AddDescription(menu, $"{DeathLinkMode.SubChapter}: Restarts to the most recently collected sub-chapter");
-            modeSelectionMenu.AddDescription(menu, $"{DeathLinkMode.Room}: Normal Death");
+
+            // Can only add descriptions after option has been added to the menu
+            foreach (DeathLinkMode mode in ((DeathLinkMode[])Enum.GetValues(typeof(DeathLinkMode))).Reverse())
+            {
+                modeSelectionMenu.AddDescription(menu, Dialog.Clean("archipelago_settings_deathlink_mode_description_" + mode.ToString().ToLower()));
+            }
         }
     }
 }

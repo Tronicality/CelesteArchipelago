@@ -20,8 +20,9 @@ namespace Celeste.Mod.CelesteArchipelago
 
         private static void Update(On.Celeste.Player.orig_Update orig, Player self)
         {
-            if (ArchipelagoController.Instance.DeathLinkStatus == DeathLinkStatus.Pending)
+            if (ArchipelagoController.Instance.DeathLinkStatus == DeathLinkStatus.Pending && self.InControl)
             {
+                ArchipelagoController.Instance.FlushDeathLinkMessage();
                 self.Die(Vector2.Zero, true);
             }
             orig.Invoke(self);
@@ -31,7 +32,7 @@ namespace Celeste.Mod.CelesteArchipelago
         {
             if (ArchipelagoController.Instance.DeathLinkStatus == DeathLinkStatus.Dying)
             {
-                ArchipelagoController.Instance.DeathLinkStatus = DeathLinkStatus.None;
+                ArchipelagoController.Instance.DeathLinkStatus = (ArchipelagoController.Instance.DeathLinkPool.Count > 0) ? DeathLinkStatus.Pending : DeathLinkStatus.None;
             }
         }
 

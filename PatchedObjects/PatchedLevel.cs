@@ -30,6 +30,8 @@ namespace Celeste.Mod.CelesteArchipelago
                 return;
             }
 
+            ArchipelagoController.Instance.FlushDeathLinkMessage();
+
             switch (CelesteArchipelagoModule.Settings.DeathLinkMode)
             {
                 case DeathLinkMode.SubChapter:
