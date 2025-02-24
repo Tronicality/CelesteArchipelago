@@ -1,6 +1,4 @@
 using Microsoft.Xna.Framework.Input;
-using Monocle;
-using System.Xml.Serialization;
 
 namespace Celeste.Mod.CelesteArchipelago {
     public class CelesteArchipelagoModuleSettings : EverestModuleSettings
@@ -11,26 +9,6 @@ namespace Celeste.Mod.CelesteArchipelago {
         [SettingMaxLength(30)]
         public string Server { get; set; } = "archipelago.gg";
         public string Port { get; set; } = "38281";
-        [SettingInGame(true)]
-        public bool DeathLink
-        {
-            get => _deathLink;
-            set
-            {
-                
-                if (ArchipelagoController.Instance.DeathLinkService is not null)
-                {
-                    if (!_deathLink) {
-                        ArchipelagoController.Instance.DeathLinkService.EnableDeathLink();
-                    }
-                    else {
-                        ArchipelagoController.Instance.DeathLinkService.DisableDeathLink();
-                    }
-                }
-                _deathLink = value;
-            }
-        }
-        private bool _deathLink = false;
         private bool _Chat = false;
         public bool Chat { 
             get => _Chat; 
@@ -43,6 +21,27 @@ namespace Celeste.Mod.CelesteArchipelago {
                 }
             } 
         }
+        // If adding new options under this comment, do not forget to change the DeathLinkMode insert value in the settingsUI
+        private bool _DeathLink = false;
+        [SettingInGame(true)]
+        public bool DeathLink
+        {
+            get => _DeathLink;
+            set
+            {
+                if (ArchipelagoController.Instance.DeathLinkService is not null)
+                {
+                    if (value) {
+                        ArchipelagoController.Instance.DeathLinkService.EnableDeathLink();
+                    }
+                    else {
+                        ArchipelagoController.Instance.DeathLinkService.DisableDeathLink();
+                    }
+                }
+                _DeathLink = value;
+            }
+        }
+        public DeathLinkMode DeathLinkMode = DeathLinkMode.Room;
 
 
         [DefaultButtonBinding(Buttons.Back, Keys.T)]

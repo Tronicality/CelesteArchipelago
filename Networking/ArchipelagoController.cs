@@ -4,12 +4,10 @@ using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.MessageLog.Messages;
 using Archipelago.MultiClient.Net.Packets;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
-using Archipelago.MultiClient.Net.MessageLog.Parts;
 
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 namespace Celeste.Mod.CelesteArchipelago
 {
@@ -67,11 +65,11 @@ namespace Celeste.Mod.CelesteArchipelago
 
         public DeathLinkService DeathLinkService { get; private set; }
         public DeathLinkStatus DeathLinkStatus { get; set; } = DeathLinkStatus.None;
-        public bool isLocalDeath = true;
+        public bool IsLocalDeath = true;
         private long DeathAmnestyCount = 0;
         private ChatHandler ChatHandler { get; set; }
         private Connection Connection { get; set; }
-        private VictoryConditionOptions VictoryCondition
+        public VictoryConditionOptions VictoryCondition
         {
             get { return (VictoryConditionOptions)SlotData.VictoryCondition; }
         }
@@ -178,6 +176,8 @@ namespace Celeste.Mod.CelesteArchipelago
                         DeathLinkService.DisableDeathLink();
                     }
 
+                    CleanPreviousSaveData();
+
                     Connection.Disposed += (sender, args) =>
                     {
                         Session.MessageLog.OnMessageReceived -= HandleMessage;
@@ -197,6 +197,11 @@ namespace Celeste.Mod.CelesteArchipelago
         public void DisconnectSession()
         {
             Connection?.Dispose();
+        }
+
+        private void CleanPreviousSaveData()
+        {
+            CheckpointState.CleanSaveDataCheckpoints();
         }
 
         public void ReceiveItemCallback(IReceivedItemsHelper receivedItemsHelper)
@@ -252,14 +257,8 @@ namespace Celeste.Mod.CelesteArchipelago
         public void ReceiveDeathLinkCallback(DeathLink deathLink)
         {
             string completeMessage;
-            if (string.IsNullOrEmpty(deathLink.Cause))
-            {
-                completeMessage = $"DeathLink: {deathLink.Source} died";
-            }
-            else
-            {
-                completeMessage = $"DeathLink from {deathLink.Source}: {deathLink.Cause}";
-            }
+            completeMessage = $"DeathLink from {deathLink.Source}";
+            completeMessage += string.IsNullOrEmpty(deathLink.Cause) ? "" : $": {deathLink.Cause}";
 
             ChatHandler.HandleMessage(completeMessage, Color.PaleVioletRed);
 
@@ -267,7 +266,7 @@ namespace Celeste.Mod.CelesteArchipelago
             {
                 // wait for Madeline to die
                 DeathLinkStatus = DeathLinkStatus.Pending;
-                isLocalDeath = false;
+                IsLocalDeath = false;
             }
         }
 
@@ -323,7 +322,7 @@ namespace Celeste.Mod.CelesteArchipelago
 
                 DeathAmnestyCount = 0;
             }
-            else if (isLocalDeath)
+            else if (IsLocalDeath)
             {
                 DeathAmnestyCount++;
             }

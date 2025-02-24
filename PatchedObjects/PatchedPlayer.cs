@@ -1,9 +1,7 @@
-using System;
 using Microsoft.Xna.Framework;
 
 namespace Celeste.Mod.CelesteArchipelago
 {
-
     public class PatchedPlayer : IPatchable
     {
         public void Load()
@@ -41,7 +39,7 @@ namespace Celeste.Mod.CelesteArchipelago
         {
             ArchipelagoController.Instance.SendDeathLinkCallback();
             ArchipelagoController.Instance.DeathLinkStatus = DeathLinkStatus.Dying;
-            ArchipelagoController.Instance.isLocalDeath = true;
+            ArchipelagoController.Instance.IsLocalDeath = true;
         }
     }
 }
