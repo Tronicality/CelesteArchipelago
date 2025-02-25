@@ -12,7 +12,6 @@ namespace Celeste.Mod.CelesteArchipelago
         CASSETTE = 1,
         COMPLETION = 2,
         HEARTGEM = 3,
-        STRAWBERRY = 4,
-        TRAP = 5
+        STRAWBERRY = 4
     }
 }

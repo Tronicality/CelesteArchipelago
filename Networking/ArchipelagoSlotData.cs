@@ -1,5 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Celeste.Mod.CelesteArchipelago
 {
@@ -14,8 +18,6 @@ namespace Celeste.Mod.CelesteArchipelago
         public long DisableHeartGates { get; set; } = 0;
         public long DeathLink { get; set; } = 0;
         public long DeathAmnestyMax { get; set; } = 20;
-        public long TrapDeathDuration { get; set; } = 10;
-        public long TrapRoomDuration { get; set; } = 3;
 
         private Dictionary<string, PropertyInfo> keyPropertyMap = new Dictionary<string, PropertyInfo>
         {
@@ -29,8 +31,6 @@ namespace Celeste.Mod.CelesteArchipelago
             { "disable_heart_gates", typeof(ArchipelagoSlotData).GetProperty("DisableHeartGates") },
             { "death_link", typeof(ArchipelagoSlotData).GetProperty("DeathLink") },
             { "death_link_amnesty", typeof(ArchipelagoSlotData).GetProperty("DeathAmnestyMax") },
-            { "trap_death_duration", typeof(ArchipelagoSlotData).GetProperty("TrapDeathDuration") },
-            { "trap_room_duration", typeof(ArchipelagoSlotData).GetProperty("TrapRoomDuration") },
         };
 
         public ArchipelagoSlotData(Dictionary<string, object> slotData)
@@ -60,7 +60,7 @@ namespace Celeste.Mod.CelesteArchipelago
         }
     }
 
-    internal enum VictoryConditionOptions
+    public enum VictoryConditionOptions
     {
         CHAPTER_7_SUMMIT_A = 0,
         CHAPTER_8_CORE_A = 1,

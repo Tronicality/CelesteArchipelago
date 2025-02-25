@@ -4,10 +4,8 @@ using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.MessageLog.Messages;
 using Archipelago.MultiClient.Net.Packets;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
-using Archipelago.MultiClient.Net.MessageLog.Parts;
 
 using Microsoft.Xna.Framework;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 
@@ -17,7 +15,6 @@ namespace Celeste.Mod.CelesteArchipelago
     {
         public static ArchipelagoController Instance { get; private set; }
         public IProgressionSystem ProgressionSystem { get; set; }
-        public CelesteArchipelagoTrapManager trapManager { get; private set; }
         public ArchipelagoSession Session
         {
             get
@@ -68,11 +65,12 @@ namespace Celeste.Mod.CelesteArchipelago
 
         public DeathLinkService DeathLinkService { get; private set; }
         public DeathLinkStatus DeathLinkStatus { get; set; } = DeathLinkStatus.None;
-        public bool isLocalDeath = true;
+        public List<string> DeathLinkPool { get; private set; } = new();
+        public bool IsLocalDeath = true;
         private long DeathAmnestyCount = 0;
         private ChatHandler ChatHandler { get; set; }
         private Connection Connection { get; set; }
-        private VictoryConditionOptions VictoryCondition
+        public VictoryConditionOptions VictoryCondition
         {
             get { return (VictoryConditionOptions)SlotData.VictoryCondition; }
         }
@@ -87,8 +85,8 @@ namespace Celeste.Mod.CelesteArchipelago
             new PatchedOuiChapterSelect(),
             new PatchedOuiMainMenu(),
             new PatchedOuiJournal(),
-            new PatchedPlayer(),
             new PatchedSaveData(),
+            new PatchedPlayer(),
             new PatchedStrawberry(),
             new PatchedBerryCounter(),
         };
@@ -103,7 +101,6 @@ namespace Celeste.Mod.CelesteArchipelago
             ChatHandler = new ChatHandler(Game);
             game.Components.Add(ChatHandler);
             ProgressionSystem = new NullProgression();
-            trapManager = new CelesteArchipelagoTrapManager();
         }
 
         public void Init()
@@ -161,25 +158,9 @@ namespace Celeste.Mod.CelesteArchipelago
                     {
                         ProgressionSystem = new DefaultProgression(SlotData);
                     }
-
                     Session.DataStorage[Scope.Slot, "CelestePlayState"].Initialize("1;0;0;dotutorial");
                     Session.DataStorage[Scope.Slot, "CelesteCheckpointState"].Initialize(long.MinValue);
                     Session.DataStorage[Scope.Slot, "CelesteDeathAmnestyState"].Initialize(0);
-                    Session.DataStorage[Scope.Slot, "CelesteTrapCount"].Initialize(0);
-                    Session.DataStorage[Scope.Slot, "CelesteTrapState"].Initialize(JObject.FromObject(new Dictionary<TrapType, Trap>()));
-
-                    JObject traps = Session.DataStorage[Scope.Slot, "CelesteTrapState"].To<JObject>();
-                    if (traps.Count == 0)
-                    {
-                        // Create new Traps
-                        trapManager = new CelesteArchipelagoTrapManager(SlotData.TrapDeathDuration, SlotData.TrapRoomDuration);
-                    }
-                    else
-                    {
-                        // Load previous traps
-                        int trapCounter = Session.DataStorage[Scope.Slot, "CelesteTrapCount"].To<int>();
-                        trapManager = new CelesteArchipelagoTrapManager(SlotData.TrapDeathDuration, SlotData.TrapRoomDuration, trapCounter, traps);
-                    }
 
                     CelesteArchipelagoModule.Settings.DeathLink = SlotData.DeathLink == 1;
                     DeathLinkService = Session.CreateDeathLinkService();
@@ -196,12 +177,13 @@ namespace Celeste.Mod.CelesteArchipelago
                         DeathLinkService.DisableDeathLink();
                     }
 
+                    CleanPreviousSaveData();
+
                     Connection.Disposed += (sender, args) =>
                     {
                         Session.MessageLog.OnMessageReceived -= HandleMessage;
                         Session.Items.ItemReceived -= ReceiveItemCallback;
                         ProgressionSystem = new NullProgression();
-                        trapManager.ResetAllTraps();
                         DeathLinkService = null;
                     };
                 }
@@ -216,6 +198,11 @@ namespace Celeste.Mod.CelesteArchipelago
         public void DisconnectSession()
         {
             Connection?.Dispose();
+        }
+
+        private void CleanPreviousSaveData()
+        {
+            CheckpointState.CleanSaveDataCheckpoints();
         }
 
         public void ReceiveItemCallback(IReceivedItemsHelper receivedItemsHelper)
@@ -233,7 +220,7 @@ namespace Celeste.Mod.CelesteArchipelago
                 ArchipelagoNetworkItem item = new ArchipelagoNetworkItem(itemID);
 
                 // Collect received item via chosen progression system
-                ProgressionSystem.OnCollectedServer(item.areaKey, item.type, GetEntityId(item));
+                ProgressionSystem.OnCollectedServer(item.areaKey, item.type, item.strawberry);
                 receivedItemsHelper.DequeueItem();
             }
         }
@@ -264,74 +251,62 @@ namespace Celeste.Mod.CelesteArchipelago
             {
                 Logger.Log("CelesteArchipelago", $"Replaying location {Session.Locations.GetLocationNameFromId(loc) ?? loc.ToString()}");
                 item = new ArchipelagoNetworkItem(loc);
-                ProgressionSystem.OnCollectedClient(item.areaKey, item.type, GetEntityId(item), true);
-            }
-        }
-
-        private EntityID? GetEntityId(ArchipelagoNetworkItem item) {
-            switch (item.type) {
-                case CollectableType.STRAWBERRY:
-                    return item.strawberry;
-                case CollectableType.TRAP:
-                    return item.trap;
-                default:
-                    return null;
+                ProgressionSystem.OnCollectedClient(item.areaKey, item.type, item.strawberry, true);
             }
         }
 
         public void ReceiveDeathLinkCallback(DeathLink deathLink)
         {
             string completeMessage;
-            if (string.IsNullOrEmpty(deathLink.Cause))
-            {
-                completeMessage = $"DeathLink: {deathLink.Source} died";
-            }
-            else
-            {
-                completeMessage = $"DeathLink from {deathLink.Source}: {deathLink.Cause}";
-            }
+            completeMessage = $"{Dialog.Clean("archipelago_messages_deathlink_recieved")} {deathLink.Source}";
+            completeMessage += string.IsNullOrEmpty(deathLink.Cause) ? "" : $": {deathLink.Cause}";
 
-            ChatHandler.HandleMessage(completeMessage, Color.PaleVioletRed);
-
+            DeathLinkPool.Add(completeMessage);
             if (DeathLinkStatus == DeathLinkStatus.None && CelesteArchipelagoModule.Settings.DeathLink)
             {
                 // wait for Madeline to die
                 DeathLinkStatus = DeathLinkStatus.Pending;
-                isLocalDeath = false;
+                IsLocalDeath = false;
             }
+        }
+
+        public void FlushDeathLinkMessage()
+        {
+            ChatHandler.HandleMessage(DeathLinkPool[0], Color.PaleVioletRed);
+            DeathLinkPool.RemoveAt(0);
         }
 
         private string setDeathCause(string chapter, string player)
         {
             switch (chapter)
             {
-                case "Celeste/0-Intro": // Prologue
-                    return $"Granny Laughs at {player}"; // "Died to a driveway"
-                case "Celeste/1-ForsakenCity":
-                    return $"{player} died in the Forsaken City";
-                case "Celeste/2-OldSite":
-                    return $"{player} kept dreaming";
-                case "Celeste/3-CelestialResort":
-                    return $"{player} couldn't handle the dust bunnies"; // or Oshiro reference
-                case "Celeste/4-GoldenRidge":
-                    return $"{player} was taken away by the wind"; // or snowball reference
-                case "Celeste/5-MirrorTemple":
-                    return $"{player} got lost in the temple"; // or seeker reference
-                case "Celeste/6-Reflection":
-                    return $"{player} tried to get rid of a part of themself"; // "You think a feather can beat me?" or "Kevin had something to say"
-                case "Celeste/7-Summit":
-                    return $"{player} fell on the climb to the top of celeste mountain";
-                case "Celeste/8-Epilogue":
-                    return $"{player}'s strawberry cake was a lie";
-                case "Celeste/9-Core":
-                    return $"{player} couldn't reach the core";
-                case "Celeste/LostLevels": // Farewell
-                    return $"{player} says Farewell";
-                default:
-                    Logger.Log(LogLevel.Debug, "CelesteArchipelago", $"Could not find cause {chapter}");
-                    return $"{player} died in Celeste";
+            case "Celeste/0-Intro": // Prologue
+                return $"{Dialog.Clean("archipelago_messages_deathlink_intro")} {player}";
+            case "Celeste/1-ForsakenCity":
+                return $"{player} {Dialog.Clean("archipelago_messages_deathlink_forsaken_city")}";
+            case "Celeste/2-OldSite":
+                return $"{player} {Dialog.Clean("archipelago_messages_deathlink_old_site")}";
+            case "Celeste/3-CelestialResort":
+                return $"{player} {Dialog.Clean("archipelago_messages_deathlink_celestial_resort")}";
+            case "Celeste/4-GoldenRidge":
+                return $"{player} {Dialog.Clean("archipelago_messages_deathlink_golden_ridge")}";
+            case "Celeste/5-MirrorTemple":
+                return $"{player} {Dialog.Clean("archipelago_messages_deathlink_mirror_temple")}";
+            case "Celeste/6-Reflection":
+                return $"{player} {Dialog.Clean("archipelago_messages_deathlink_reflection")}";
+            case "Celeste/7-Summit":
+                return $"{player} {Dialog.Clean("archipelago_messages_deathlink_summit")}";
+            case "Celeste/8-Epilogue":
+                return $"{player}{Dialog.Clean("archipelago_messages_deathlink_epilogue")}";
+            case "Celeste/9-Core":
+                return $"{player} {Dialog.Clean("archipelago_messages_deathlink_core")}";
+            case "Celeste/LostLevels": // Farewell
+                return $"{player} {Dialog.Clean("archipelago_messages_deathlink_farewell")}";
+            default:
+                Logger.Log(LogLevel.Debug, "CelesteArchipelago", $"Could not find cause {chapter}");
+                return $"{player} {Dialog.Clean("archipelago_messages_deathlink_default")}";
             }
-
+            
             // Could implement many messages per chapter
             // Could get specific item player died to
             // Feel free to change messages if you believe that your message is better
@@ -344,16 +319,16 @@ namespace Celeste.Mod.CelesteArchipelago
                 return;
             }
 
-            if (DeathLinkStatus == DeathLinkStatus.None && DeathAmnestyCount >= Instance.SlotData.DeathAmnestyMax - 1)
+            if (DeathLinkStatus == DeathLinkStatus.None && DeathAmnestyCount >= SlotData.DeathAmnestyMax - 1)
             {
-                ChatHandler.HandleMessage("Death Sent", Color.PaleVioletRed);
+                ChatHandler.HandleMessage(Dialog.Clean("archipelago_messages_deathlink_sent"), Color.PaleVioletRed);
                 string sourcePlayer = Session.Players.GetPlayerAlias(Session.ConnectionInfo.Slot);
                 DeathLink deathLink = new DeathLink(sourcePlayer, setDeathCause(PlayState.AreaKey.GetSID(), sourcePlayer));
                 DeathLinkService.SendDeathLink(deathLink);
 
                 DeathAmnestyCount = 0;
             }
-            else if (isLocalDeath)
+            else if (IsLocalDeath)
             {
                 DeathAmnestyCount++;
             }

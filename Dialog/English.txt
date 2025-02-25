@@ -12,3 +12,96 @@ archipelago_menu_regenuuid_yes=
 
 archipelago_menu_regenuuid_no=
 	Cancel
+
+archipelago_settings_name_label=
+	Name
+
+archipelago_settings_password_label=
+	Password
+
+archipelago_settings_server_label=
+	Server
+
+archipelago_settings_port_label=
+	Port
+
+archipelago_settings_chat_label=
+	Chat
+
+archipelago_settings_deathlink_label=
+	DeathLink
+
+archipelago_settings_deathlink_mode_label_title=
+	DeathLink Mode
+
+archipelago_settings_deathlink_mode_label_room=
+	Room
+
+archipelago_settings_deathlink_mode_label_subchapter=
+	SubChapter
+
+archipelago_settings_deathlink_mode_label_chapter=
+	Chapter
+
+archipelago_settings_deathlink_mode_label_chapternogoal=
+	ChapterNoGoal
+
+archipelago_settings_deathlink_mode_description_room=
+	Room: Normal Death
+
+archipelago_settings_deathlink_mode_description_subchapter=
+	SubChapter: Restarts to the most recently collected sub-chapter
+
+archipelago_settings_deathlink_mode_description_chapter=
+	Chapter: Restarts the whole chapter
+
+archipelago_settings_deathlink_mode_description_chapternogoal=
+	ChapterNoGoal: Chapter mode until goal level, then switches to Room mode
+
+archipelago_settings_chat_toggle_label=
+	Toggle Chat
+
+archipelago_settings_chat_scroll_up_label=
+	Scroll Chat Up
+
+archipelago_settings_chat_scroll_down_label=
+	Scroll Chat Down
+
+archipelago_messages_deathlink_sent=
+	Deathlink Sent
+
+archipelago_messages_deathlink_recieved=
+	DeathLink from
+
+archipelago_messages_deathlink_default=
+	died in Celeste
+
+archipelago_messages_deathlink_intro=
+	Granny Laughs at
+
+archipelago_messages_deathlink_forsaken_city=
+	died in the Forsaken City
+
+archipelago_messages_deathlink_old_site=
+	kept dreaming
+
+archipelago_messages_deathlink_resort=
+	couldn't handle the dust bunnies
+
+archipelago_messages_deathlink_golden_ridge=
+	was taken away by the wind
+
+archipelago_messages_deathlink_mirror_temple=
+	got lost in the temple
+
+archipelago_messages_deathlink_reflection=
+	tried to get rid of a part of themselves
+
+archipelago_messages_deathlink_summit=
+	fell on the climb
+
+archipelago_messages_deathlink_core=
+	's strawberry cake was a lie
+
+archipelago_messages_deathlink_farewell=
+	says Farewell
