@@ -109,13 +109,6 @@ namespace Celeste.Mod.CelesteArchipelago
                     if (entity == null) return;
                     SaveData.Instance.AddStrawberry(area, entity.Value, false);
                     break;
-                case CollectableType.TRAP:
-                    if (!isReplay)
-                    {
-                        ArchipelagoController.Instance.trapManager.AddTrap((TrapType)entity.Value.ID);
-                    }
-                    entity = null;
-                    break;
                 default:
                     throw new ArgumentOutOfRangeException($"CollectableType {collectable} not implemented.");
             }
@@ -140,9 +133,6 @@ namespace Celeste.Mod.CelesteArchipelago
                     break;
                 case CollectableType.STRAWBERRY:
                     StrawberryCount += 1;
-                    break;
-                case CollectableType.TRAP:
-                    ArchipelagoController.Instance.trapManager.AddTrap((TrapType)entity.Value.ID);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException($"CollectableType {area} {collectable} {entity} not implemented.");
