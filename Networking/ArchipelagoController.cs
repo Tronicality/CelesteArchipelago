@@ -8,6 +8,7 @@ using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 
 namespace Celeste.Mod.CelesteArchipelago
 {
@@ -161,6 +162,8 @@ namespace Celeste.Mod.CelesteArchipelago
                     Session.DataStorage[Scope.Slot, "CelestePlayState"].Initialize("1;0;0;dotutorial");
                     Session.DataStorage[Scope.Slot, "CelesteCheckpointState"].Initialize(long.MinValue);
                     Session.DataStorage[Scope.Slot, "CelesteDeathAmnestyState"].Initialize(0);
+                    Session.DataStorage[Scope.Slot, "CelesteTrapCount"].Initialize(0);
+                    Session.DataStorage[Scope.Slot, "CelesteTrapState"].Initialize(JObject.FromObject(new Dictionary<TrapType, AbstractTrap>()));
 
                     CelesteArchipelagoModule.Settings.DeathLink = SlotData.DeathLink == 1;
                     DeathLinkService = Session.CreateDeathLinkService();
