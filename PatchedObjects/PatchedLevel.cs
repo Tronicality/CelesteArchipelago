@@ -137,6 +137,7 @@ namespace Celeste.Mod.CelesteArchipelago
             {
                 ArchipelagoController.Instance.CheckpointState.LastHitCheckpoint = next.Name;
             }
+            ArchipelagoController.Instance.trapManager.IncrementAllRoomCounts(state);
         }
 
         private static void OnExit(Level level, LevelExit exit, LevelExit.Mode mode, Session session, HiresSnow snow)
@@ -147,6 +148,7 @@ namespace Celeste.Mod.CelesteArchipelago
                 Logger.Log("CelesteArchipelago", $"Exiting level. Setting PlayState to {state}");
                 ArchipelagoController.Instance.PlayState = state;
                 ArchipelagoController.Instance.CheckpointState.LastHitCheckpoint = null; // Preventing aysnc shenanigans
+                ArchipelagoController.Instance.trapManager.LoadStatus = TrapLoadStatus.PENDING;
             }
         }
     }
