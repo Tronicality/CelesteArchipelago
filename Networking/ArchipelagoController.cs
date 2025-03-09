@@ -64,6 +64,7 @@ namespace Celeste.Mod.CelesteArchipelago
             }
         }
 
+        public CelesteArchipelagoTrapManager trapManager { get; private set; }
         public DeathLinkService DeathLinkService { get; private set; }
         public DeathLinkStatus DeathLinkStatus { get; set; } = DeathLinkStatus.None;
         public List<string> DeathLinkPool { get; private set; } = new();
@@ -102,6 +103,7 @@ namespace Celeste.Mod.CelesteArchipelago
             ChatHandler = new ChatHandler(Game);
             game.Components.Add(ChatHandler);
             ProgressionSystem = new NullProgression();
+            trapManager = new CelesteArchipelagoTrapManager();
         }
 
         public void Init()
@@ -165,6 +167,19 @@ namespace Celeste.Mod.CelesteArchipelago
                     Session.DataStorage[Scope.Slot, "CelesteTrapCount"].Initialize(0);
                     Session.DataStorage[Scope.Slot, "CelesteTrapState"].Initialize(JObject.FromObject(new Dictionary<TrapType, AbstractTrap>()));
 
+                    JObject traps = Session.DataStorage[Scope.Slot, "CelesteTrapState"].To<JObject>();
+                    if (traps.Count == 0)
+                    {
+                        // Create new Traps
+                        trapManager = new CelesteArchipelagoTrapManager(SlotData.TrapDeathDuration, SlotData.TrapRoomDuration);
+                    }
+                    else
+                    {
+                        // Load previous traps
+                        int trapCounter = Session.DataStorage[Scope.Slot, "CelesteTrapCount"].To<int>();
+                        trapManager = new CelesteArchipelagoTrapManager(SlotData.TrapDeathDuration, SlotData.TrapRoomDuration, trapCounter, traps);
+                    }
+
                     CelesteArchipelagoModule.Settings.DeathLink = SlotData.DeathLink == 1;
                     DeathLinkService = Session.CreateDeathLinkService();
                     DeathLinkService.OnDeathLinkReceived += ReceiveDeathLinkCallback;
@@ -188,6 +203,7 @@ namespace Celeste.Mod.CelesteArchipelago
                         Session.Items.ItemReceived -= ReceiveItemCallback;
                         ProgressionSystem = new NullProgression();
                         DeathLinkService = null;
+                        trapManager.ResetAllTraps();
                     };
                 }
                 else
@@ -317,6 +333,7 @@ namespace Celeste.Mod.CelesteArchipelago
 
         public void SendDeathLinkCallback()
         {
+            Logger.Log(LogLevel.Debug, "CelesteArchipelago", $"Entered Function");
             if (!CelesteArchipelagoModule.Settings.DeathLink)
             {
                 return;
@@ -337,6 +354,8 @@ namespace Celeste.Mod.CelesteArchipelago
             }
 
             Session.DataStorage["CelesteDeathAmnestyState"] = DeathAmnestyCount;
+
+            Logger.Log(LogLevel.Debug, "CelesteArchipelago", $"Amnesty Count: {DeathAmnestyCount}");
         }
 
         public void HandleMessage(LogMessage message)

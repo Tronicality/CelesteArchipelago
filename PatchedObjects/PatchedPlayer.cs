@@ -30,6 +30,8 @@ namespace Celeste.Mod.CelesteArchipelago
 
         private static void OnSpawn(Player player)
         {
+            ArchipelagoController.Instance.trapManager.LoadTraps();
+
             if (ArchipelagoController.Instance.DeathLinkStatus == DeathLinkStatus.Dying)
             {
                 ArchipelagoController.Instance.DeathLinkStatus = (ArchipelagoController.Instance.DeathLinkPool.Count > 0) ? DeathLinkStatus.Pending : DeathLinkStatus.None;
@@ -38,6 +40,7 @@ namespace Celeste.Mod.CelesteArchipelago
 
         private static void OnDie(Player player)
         {
+            ArchipelagoController.Instance.trapManager.IncrementAllDeathCounts();
             ArchipelagoController.Instance.SendDeathLinkCallback();
             ArchipelagoController.Instance.DeathLinkStatus = DeathLinkStatus.Dying;
             ArchipelagoController.Instance.IsLocalDeath = true;
