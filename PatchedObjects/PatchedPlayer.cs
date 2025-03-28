@@ -20,7 +20,11 @@ namespace Celeste.Mod.CelesteArchipelago
 
         private static void Update(On.Celeste.Player.orig_Update orig, Player self)
         {
-            if (ArchipelagoController.Instance.DeathLinkStatus == DeathLinkStatus.Pending && self.InControl)
+            if (ArchipelagoController.Instance.DeathLinkPool.Count > 0
+            && self.InControl
+            && !self.SceneAs<Level>().InCutscene
+            && !self.SceneAs<Level>().InCredits
+            )
             {
                 ArchipelagoController.Instance.FlushDeathLinkMessage();
                 self.Die(Vector2.Zero, true);
@@ -30,11 +34,6 @@ namespace Celeste.Mod.CelesteArchipelago
 
         private static void OnSpawn(Player self)
         {
-            if (ArchipelagoController.Instance.DeathLinkStatus == DeathLinkStatus.Dying)
-            {
-                ArchipelagoController.Instance.DeathLinkStatus = (ArchipelagoController.Instance.DeathLinkPool.Count > 0) ? DeathLinkStatus.Pending : DeathLinkStatus.None;
-            }
-
             DeathAmnestyUI entity = self.SceneAs<Level>().Tracker.GetEntity<DeathAmnestyUI>();
             if (entity != null)
             {
@@ -45,8 +44,7 @@ namespace Celeste.Mod.CelesteArchipelago
         private static void OnDie(Player self)
         {
             ArchipelagoController.Instance.SendDeathLinkCallback();
-            ArchipelagoController.Instance.DeathLinkStatus = DeathLinkStatus.Dying;
-            ArchipelagoController.Instance.IsLocalDeath = true;
+            ArchipelagoController.Instance.IsLocalDeath = ArchipelagoController.Instance.DeathLinkPool.Count < 1;
         }
     }
 }

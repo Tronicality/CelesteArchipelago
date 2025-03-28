@@ -64,7 +64,6 @@ namespace Celeste.Mod.CelesteArchipelago
         }
 
         public DeathLinkService DeathLinkService { get; private set; }
-        public DeathLinkStatus DeathLinkStatus { get; set; } = DeathLinkStatus.None;
         public List<string> DeathLinkPool { get; private set; } = new();
         public bool IsLocalDeath = true;
         public long DeathAmnestyCount { get; private set; } = 0;
@@ -264,12 +263,7 @@ namespace Celeste.Mod.CelesteArchipelago
             completeMessage += string.IsNullOrEmpty(deathLink.Cause) ? "" : $": {deathLink.Cause}";
 
             DeathLinkPool.Add(completeMessage);
-            if (DeathLinkStatus == DeathLinkStatus.None && CelesteArchipelagoModule.Settings.DeathLink)
-            {
-                // wait for Madeline to die
-                DeathLinkStatus = DeathLinkStatus.Pending;
-                IsLocalDeath = false;
-            }
+            IsLocalDeath = false;
         }
 
         public void FlushDeathLinkMessage()
@@ -350,12 +344,12 @@ namespace Celeste.Mod.CelesteArchipelago
 
         public void SendDeathLinkCallback()
         {
-            if (!CelesteArchipelagoModule.Settings.DeathLink)
+            if (!CelesteArchipelagoModule.Settings.DeathLink || !IsLocalDeath)
             {
                 return;
             }
 
-            if (DeathLinkStatus == DeathLinkStatus.None && DeathAmnestyCount >= SlotData.DeathAmnestyMax - 1)
+            if (DeathAmnestyCount >= SlotData.DeathAmnestyMax - 1)
             {
                 ChatHandler.HandleMessage(Dialog.Clean("archipelago_messages_deathlink_sent"), Color.PaleVioletRed);
                 string sourcePlayer = Session.Players.GetPlayerAlias(Session.ConnectionInfo.Slot);
@@ -364,7 +358,7 @@ namespace Celeste.Mod.CelesteArchipelago
 
                 DeathAmnestyCount = 0;
             }
-            else if (IsLocalDeath)
+            else
             {
                 DeathAmnestyCount++;
             }
