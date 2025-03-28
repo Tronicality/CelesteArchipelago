@@ -173,7 +173,7 @@ archipelago_messages_deathlink_random_2=
 	player swears they can do this deathless
 
 archipelago_messages_deathlink_random_3=
-	Skill issue from player
+	player has a skill issue
 
 archipelago_messages_deathlink_random_4=
 	player couldn't handle the mountain

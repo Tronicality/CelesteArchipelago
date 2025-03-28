@@ -296,7 +296,7 @@ namespace Celeste.Mod.CelesteArchipelago
                 attempts--;
             }
 
-            return baseMessage + "0";
+            return baseMessage + "1"; // Fallback to first message
         }
 
         private string ChooseDeathMessage()

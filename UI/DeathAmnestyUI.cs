@@ -124,12 +124,12 @@ namespace Celeste.Mod.CelesteArchipelago
                 Draw.Rect(0, Y, _width - Background.Width + basePos.X, 38f, Color.Black);
             }
 
-            APIcon.DrawCentered(new Vector2(basePos.X + 60f, Y + 20f), Color.White, Scale * 0.3f);
-            SkullIcon.DrawCentered(new Vector2(basePos.X + 80f, Y + 40f), Color.White, Scale * 0.7f);
+            APIcon.DrawCentered(new Vector2(basePos.X + 60f, Y + 19f), Color.White, Scale * 0.3f);
+            SkullIcon.DrawCentered(new Vector2(basePos.X + 80f, Y + 39f), Color.White, Scale * 0.7f);
 
-            _X.DrawCentered(new Vector2(basePos.X + 120f, Y + 18), Color.White, Scale);
+            _X.DrawCentered(new Vector2(basePos.X + 120f, Y + 9f), Color.White, Scale);
 
-            ActiveFont.Draw(_text, new(basePos.X + 145f, Y - 16f), Color.White);
+            ActiveFont.DrawOutline(_text, new(basePos.X + 145f, Y - 24f), Vector2.Zero, Vector2.One, Color.White, 2f, Color.Black);
         }
 
         public MTexture SetSkullIcon(AreaKey area)
