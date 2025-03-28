@@ -34,6 +34,11 @@ namespace Celeste.Mod.CelesteArchipelago
 
         private static void OnSpawn(Player self)
         {
+            if (self.InControl && !self.SceneAs<Level>().InCutscene && !self.SceneAs<Level>().InCredits)
+            {
+                ArchipelagoController.Instance.trapManager.LoadTraps();
+            }
+
             DeathAmnestyUI entity = self.SceneAs<Level>().Tracker.GetEntity<DeathAmnestyUI>();
             if (entity != null)
             {

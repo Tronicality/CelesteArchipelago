@@ -157,7 +157,7 @@ namespace Celeste.Mod.CelesteArchipelago
                 Logger.Log("CelesteArchipelago", $"Exiting level. Setting PlayState to {state}");
                 ArchipelagoController.Instance.PlayState = state;
                 ArchipelagoController.Instance.CheckpointState.LastHitCheckpoint = null; // Preventing aysnc shenanigans
-                ArchipelagoController.Instance.trapManager.LoadStatus = TrapLoadStatus.PENDING;
+                ArchipelagoController.Instance.trapManager.HasTrapsLoaded = false;
             }
         }
     }

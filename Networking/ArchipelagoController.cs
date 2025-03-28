@@ -42,7 +42,6 @@ namespace Celeste.Mod.CelesteArchipelago
                 Session.DataStorage[Scope.Slot, "CelestePlayState"] = value.ToString();
             }
         }
-
         private CheckpointState _checkpointState;
         public CheckpointState CheckpointState
         {
@@ -240,7 +239,7 @@ namespace Celeste.Mod.CelesteArchipelago
                 ArchipelagoNetworkItem item = new ArchipelagoNetworkItem(itemID);
 
                 // Collect received item via chosen progression system
-                ProgressionSystem.OnCollectedServer(item.areaKey, item.type, item.strawberry);
+                ProgressionSystem.OnCollectedServer(item.areaKey, item.type, item.entity);
                 receivedItemsHelper.DequeueItem();
             }
         }
@@ -271,7 +270,7 @@ namespace Celeste.Mod.CelesteArchipelago
             {
                 Logger.Log("CelesteArchipelago", $"Replaying location {Session.Locations.GetLocationNameFromId(loc) ?? loc.ToString()}");
                 item = new ArchipelagoNetworkItem(loc);
-                ProgressionSystem.OnCollectedClient(item.areaKey, item.type, item.strawberry, true);
+                ProgressionSystem.OnCollectedClient(item.areaKey, item.type, item.entity, true);
             }
         }
 
