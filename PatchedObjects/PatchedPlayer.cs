@@ -1,5 +1,3 @@
-using Microsoft.Xna.Framework;
-
 namespace Celeste.Mod.CelesteArchipelago
 {
     public class PatchedPlayer : IPatchable
@@ -16,12 +14,15 @@ namespace Celeste.Mod.CelesteArchipelago
             Everest.Events.Player.OnDie -= OnDie;
         }
 
-        private static void OnSpawn(Player player)
-        {
-            ArchipelagoController.Instance.trapManager.LoadTraps();
+        private static void OnSpawn(Player self)
+        {            
+            if (self.InControl && !self.SceneAs<Level>().InCutscene && !self.SceneAs<Level>().InCredits)
+            {
+                ArchipelagoController.Instance.trapManager.LoadTraps();
+            }
         }
 
-        private static void OnDie(Player player)
+        private static void OnDie(Player self)
         {
             ArchipelagoController.Instance.trapManager.IncrementAllDeathCounts();
         }
