@@ -39,7 +39,6 @@ namespace Celeste.Mod.CelesteArchipelago
             {
                 Session.DataStorage[Scope.Slot, "CelestePlayState"] = value.ToString();
             }
-        
         }
 
         private CheckpointState _checkpointState;
@@ -47,7 +46,7 @@ namespace Celeste.Mod.CelesteArchipelago
         {
             get
             {
-                if(_checkpointState == null)
+                if (_checkpointState == null)
                 {
                     _checkpointState = new CheckpointState(unchecked((ulong)(Session.DataStorage[Scope.Slot, "CelesteCheckpointState"].To<long>() - long.MinValue)), Session.DataStorage);
                 }
@@ -67,7 +66,7 @@ namespace Celeste.Mod.CelesteArchipelago
         public DeathLinkStatus DeathLinkStatus { get; set; } = DeathLinkStatus.None;
         public List<string> DeathLinkPool { get; private set; } = new();
         public bool IsLocalDeath = true;
-        private long DeathAmnestyCount = 0;
+        public long DeathAmnestyCount { get; private set; } = 0;
         private ChatHandler ChatHandler { get; set; }
         private Connection Connection { get; set; }
         public VictoryConditionOptions VictoryCondition
@@ -80,6 +79,7 @@ namespace Celeste.Mod.CelesteArchipelago
             new PatchedHeartGem(),
             new PatchedHeartGemDoor(),
             new PatchedLevel(),
+            new PatchedLevelLoader(),
             new PatchedLevelSetStats(),
             new PatchedOuiChapterPanel(),
             new PatchedOuiChapterSelect(),
@@ -138,20 +138,21 @@ namespace Celeste.Mod.CelesteArchipelago
         public void StartSession(Action<LoginResult> onLogin)
         {
             var parameters = new ConnectionParameters(
-                game:     "Celeste",
-                server:   CelesteArchipelagoModule.Settings.Server,
-                port:     CelesteArchipelagoModule.Settings.Port,
-                name:     CelesteArchipelagoModule.Settings.Name,
-                flags:    ItemsHandlingFlags.AllItems,
-                version:  new Version(0, 5, 1), // Needs hotfix aswell
-                tags:     null,
-                uuid:     null,
+                game: "Celeste",
+                server: CelesteArchipelagoModule.Settings.Server,
+                port: CelesteArchipelagoModule.Settings.Port,
+                name: CelesteArchipelagoModule.Settings.Name,
+                flags: ItemsHandlingFlags.AllItems,
+                version: new Version(0, 5, 1), // Needs hotfix aswell
+                tags: null,
+                uuid: null,
                 password: CelesteArchipelagoModule.Settings.Password,
                 slotData: true
             );
 
-            Connection = new Connection(Celeste.Instance, parameters, (loginResult) => {
-                if(loginResult.Successful)
+            Connection = new Connection(Celeste.Instance, parameters, (loginResult) =>
+            {
+                if (loginResult.Successful)
                 {
                     Session.Items.ItemReceived += ReceiveItemCallback;
                     if (SlotData.ProgressionSystem == (int)ProgressionSystemOptions.DEFAULT_PROGRESSION)
@@ -207,7 +208,7 @@ namespace Celeste.Mod.CelesteArchipelago
 
         public void ReceiveItemCallback(IReceivedItemsHelper receivedItemsHelper)
         {
-            while(receivedItemsHelper.Any())
+            while (receivedItemsHelper.Any())
             {
                 // Receive latest uncollected item
                 Logger.Log("CelesteArchipelago", $"Received item {receivedItemsHelper.PeekItem().ItemName} with ID {receivedItemsHelper.PeekItem().ItemId}");
@@ -280,33 +281,33 @@ namespace Celeste.Mod.CelesteArchipelago
         {
             switch (chapter)
             {
-            case "Celeste/0-Intro": // Prologue
-                return $"{Dialog.Clean("archipelago_messages_deathlink_intro")} {player}";
-            case "Celeste/1-ForsakenCity":
-                return $"{player} {Dialog.Clean("archipelago_messages_deathlink_forsaken_city")}";
-            case "Celeste/2-OldSite":
-                return $"{player} {Dialog.Clean("archipelago_messages_deathlink_old_site")}";
-            case "Celeste/3-CelestialResort":
-                return $"{player} {Dialog.Clean("archipelago_messages_deathlink_celestial_resort")}";
-            case "Celeste/4-GoldenRidge":
-                return $"{player} {Dialog.Clean("archipelago_messages_deathlink_golden_ridge")}";
-            case "Celeste/5-MirrorTemple":
-                return $"{player} {Dialog.Clean("archipelago_messages_deathlink_mirror_temple")}";
-            case "Celeste/6-Reflection":
-                return $"{player} {Dialog.Clean("archipelago_messages_deathlink_reflection")}";
-            case "Celeste/7-Summit":
-                return $"{player} {Dialog.Clean("archipelago_messages_deathlink_summit")}";
-            case "Celeste/8-Epilogue":
-                return $"{player}{Dialog.Clean("archipelago_messages_deathlink_epilogue")}";
-            case "Celeste/9-Core":
-                return $"{player} {Dialog.Clean("archipelago_messages_deathlink_core")}";
-            case "Celeste/LostLevels": // Farewell
-                return $"{player} {Dialog.Clean("archipelago_messages_deathlink_farewell")}";
-            default:
-                Logger.Log(LogLevel.Debug, "CelesteArchipelago", $"Could not find cause {chapter}");
-                return $"{player} {Dialog.Clean("archipelago_messages_deathlink_default")}";
+                case "Celeste/0-Intro": // Prologue
+                    return $"{Dialog.Clean("archipelago_messages_deathlink_intro")} {player}";
+                case "Celeste/1-ForsakenCity":
+                    return $"{player} {Dialog.Clean("archipelago_messages_deathlink_forsaken_city")}";
+                case "Celeste/2-OldSite":
+                    return $"{player} {Dialog.Clean("archipelago_messages_deathlink_old_site")}";
+                case "Celeste/3-CelestialResort":
+                    return $"{player} {Dialog.Clean("archipelago_messages_deathlink_celestial_resort")}";
+                case "Celeste/4-GoldenRidge":
+                    return $"{player} {Dialog.Clean("archipelago_messages_deathlink_golden_ridge")}";
+                case "Celeste/5-MirrorTemple":
+                    return $"{player} {Dialog.Clean("archipelago_messages_deathlink_mirror_temple")}";
+                case "Celeste/6-Reflection":
+                    return $"{player} {Dialog.Clean("archipelago_messages_deathlink_reflection")}";
+                case "Celeste/7-Summit":
+                    return $"{player} {Dialog.Clean("archipelago_messages_deathlink_summit")}";
+                case "Celeste/8-Epilogue":
+                    return $"{player}{Dialog.Clean("archipelago_messages_deathlink_epilogue")}";
+                case "Celeste/9-Core":
+                    return $"{player} {Dialog.Clean("archipelago_messages_deathlink_core")}";
+                case "Celeste/LostLevels": // Farewell
+                    return $"{player} {Dialog.Clean("archipelago_messages_deathlink_farewell")}";
+                default:
+                    Logger.Log(LogLevel.Debug, "CelesteArchipelago", $"Could not find cause {chapter}");
+                    return $"{player} {Dialog.Clean("archipelago_messages_deathlink_default")}";
             }
-            
+
             // Could implement many messages per chapter
             // Could get specific item player died to
             // Feel free to change messages if you believe that your message is better

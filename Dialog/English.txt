@@ -85,7 +85,7 @@ archipelago_messages_deathlink_forsaken_city=
 archipelago_messages_deathlink_old_site=
 	kept dreaming
 
-archipelago_messages_deathlink_resort=
+archipelago_messages_deathlink_celestial_resort=
 	couldn't handle the dust bunnies
 
 archipelago_messages_deathlink_golden_ridge=
@@ -100,8 +100,11 @@ archipelago_messages_deathlink_reflection=
 archipelago_messages_deathlink_summit=
 	fell on the climb
 
-archipelago_messages_deathlink_core=
+archipelago_messages_deathlink_epilogue=
 	's strawberry cake was a lie
+
+archipelago_messages_deathlink_core=
+	didn't know whether they were hot or cold
 
 archipelago_messages_deathlink_farewell=
 	says Farewell
