@@ -24,7 +24,7 @@ namespace Celeste.Mod.CelesteArchipelago
 
             Background = GFX.Gui["strawberryCountBG"];
             APIcon = GFX.Gui["archipelago/menu/start"];
-            SkullIcon = SetSkullIcon(level.Session.Area.Mode);
+            SkullIcon = SetSkullIcon(level.Session.Area);
             _X = GFX.Gui["x"];
 
             Y = GetYPosition();
@@ -67,23 +67,21 @@ namespace Celeste.Mod.CelesteArchipelago
 
         private bool CanShow()
         {
-            if (!CelesteArchipelagoModule.Settings.DeathLink && ArchipelagoController.Instance.SlotData.DeathAmnestyMax <= 1)
+            if (!CelesteArchipelagoModule.Settings.DeathLink)
             {
                 return false;
             }
 
             switch (CelesteArchipelagoModule.Settings.AmnestyVisibility)
             {
-                case DeathAmnestyVisibilityOptions.Always:
+                case DeathAmnestyVisibility.Always:
                     return true;
-                case DeathAmnestyVisibilityOptions.AfterDeathAndInMenu:
+                case DeathAmnestyVisibility.AfterDeathAndInMenu:
                     return (level.Paused && level.PauseMainMenuOpen) || _timer > 0f;
-                case DeathAmnestyVisibilityOptions.InMenu:
+                case DeathAmnestyVisibility.InMenu:
                     return level.Paused && level.PauseMainMenuOpen;
-                case DeathAmnestyVisibilityOptions.AfterDeath:
+                case DeathAmnestyVisibility.AfterDeath:
                     return _timer > 0f;
-                case DeathAmnestyVisibilityOptions.Disabled:
-                    return false;
             }
 
             return false;
@@ -134,9 +132,14 @@ namespace Celeste.Mod.CelesteArchipelago
             ActiveFont.Draw(_text, new(basePos.X + 145f, Y - 16f), Color.White);
         }
 
-        public MTexture SetSkullIcon(AreaMode mode)
+        public MTexture SetSkullIcon(AreaKey area)
         {
-            switch (mode)
+            if (area.SID == "Celeste/LostLevels")
+            {
+                return GFX.Gui["collectables/skullGold"];
+            }
+
+            switch (area.Mode)
             {
                 case AreaMode.Normal:
                     return GFX.Gui["collectables/skullBlue"];
@@ -150,7 +153,7 @@ namespace Celeste.Mod.CelesteArchipelago
         }
     }
 
-    public enum DeathAmnestyVisibilityOptions
+    public enum DeathAmnestyVisibility
     {
         Disabled,
         AfterDeath,

@@ -45,7 +45,7 @@ namespace Celeste.Mod.CelesteArchipelago {
             }
         }
 
-        public DeathAmnestyVisibilityOptions AmnestyVisibility = DeathAmnestyVisibilityOptions.AfterDeathAndInMenu;
+        public DeathAmnestyVisibility AmnestyVisibility = DeathAmnestyVisibility.AfterDeathAndInMenu;
 
         // If adding new options under this comment, do not forget to change the DeathLinkMode insert value in the settingsUI
         public DeathLinkMode DeathLinkMode = DeathLinkMode.Room;
