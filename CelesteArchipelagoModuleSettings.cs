@@ -22,9 +22,9 @@ namespace Celeste.Mod.CelesteArchipelago {
                 } else {
                     ArchipelagoController.Instance.DeInit();
                 }
-            } 
+            }
         }
-        // If adding new options under this comment, do not forget to change the DeathLinkMode insert value in the settingsUI
+        
         private bool _DeathLink = false;
         [SettingInGame(true), SettingName("archipelago_settings_deathlink_label")]
         public bool DeathLink
@@ -44,8 +44,11 @@ namespace Celeste.Mod.CelesteArchipelago {
                 _DeathLink = value;
             }
         }
-        public DeathLinkMode DeathLinkMode = DeathLinkMode.Room;
 
+        public DeathAmnestyVisibility AmnestyVisibility = DeathAmnestyVisibility.AfterDeathAndInMenu;
+
+        // If adding new options under this comment, do not forget to change the DeathLinkMode insert value in the settingsUI
+        public DeathLinkMode DeathLinkMode = DeathLinkMode.Room;
 
         [DefaultButtonBinding(Buttons.Back, Keys.T), SettingName("archipelago_settings_chat_toggle_label")]
         public ButtonBinding ToggleChat { get; set; }

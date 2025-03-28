@@ -20,30 +20,32 @@ namespace Celeste.Mod.CelesteArchipelago
 
         private static void Update(On.Celeste.Player.orig_Update orig, Player self)
         {
-            if (ArchipelagoController.Instance.DeathLinkStatus == DeathLinkStatus.Pending && self.InControl)
+            if (ArchipelagoController.Instance.DeathLinkPool.Count > 0
+            && self.InControl
+            && !self.SceneAs<Level>().InCutscene
+            && !self.SceneAs<Level>().InCredits
+            )
             {
                 ArchipelagoController.Instance.FlushDeathLinkMessage();
                 self.Die(Vector2.Zero, true);
             }
-            orig.Invoke(self);
+            orig(self);
         }
 
-        private static void OnSpawn(Player player)
+        private static void OnSpawn(Player self)
         {
-            ArchipelagoController.Instance.trapManager.LoadTraps();
-
-            if (ArchipelagoController.Instance.DeathLinkStatus == DeathLinkStatus.Dying)
+            DeathAmnestyUI entity = self.SceneAs<Level>().Tracker.GetEntity<DeathAmnestyUI>();
+            if (entity != null)
             {
-                ArchipelagoController.Instance.DeathLinkStatus = (ArchipelagoController.Instance.DeathLinkPool.Count > 0) ? DeathLinkStatus.Pending : DeathLinkStatus.None;
+                entity.UpdateDisplayText();
             }
         }
 
-        private static void OnDie(Player player)
+        private static void OnDie(Player self)
         {
             ArchipelagoController.Instance.trapManager.IncrementAllDeathCounts();
             ArchipelagoController.Instance.SendDeathLinkCallback();
-            ArchipelagoController.Instance.DeathLinkStatus = DeathLinkStatus.Dying;
-            ArchipelagoController.Instance.IsLocalDeath = true;
+            ArchipelagoController.Instance.IsLocalDeath = ArchipelagoController.Instance.DeathLinkPool.Count < 1;
         }
     }
 }

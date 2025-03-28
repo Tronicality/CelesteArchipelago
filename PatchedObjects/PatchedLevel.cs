@@ -23,24 +23,29 @@ namespace Celeste.Mod.CelesteArchipelago
 
         private static void Update(On.Celeste.Level.orig_Update orig, Level self)
         {
-            if (!(ArchipelagoController.Instance.DeathLinkStatus == DeathLinkStatus.Pending
-            && CelesteArchipelagoModule.Settings.DeathLinkMode != DeathLinkMode.Room))
+            if (!(ArchipelagoController.Instance.DeathLinkPool.Count > 0
+            && self.Tracker.GetEntity<Player>().InControl
+            && !self.InCutscene
+            && !self.InCredits))
             {
+                // No deathlink to process or deathlink mode is set to room
                 orig(self);
                 return;
             }
 
-            ArchipelagoController.Instance.FlushDeathLinkMessage();
-
             switch (CelesteArchipelagoModule.Settings.DeathLinkMode)
             {
                 case DeathLinkMode.SubChapter:
+                    ArchipelagoController.Instance.FlushDeathLinkMessage();
+
                     // Places user at last collected sub-chapter/checkpoint
                     self.Session.StartCheckpoint = ArchipelagoController.Instance.CheckpointState.LastHitCheckpoint;
 
                     RestartChapter(self);
                     break;
                 case DeathLinkMode.Chapter:
+                    ArchipelagoController.Instance.FlushDeathLinkMessage();
+
                     // Re-Lock Sub-Chapters
                     ArchipelagoController.Instance.CheckpointState.RemoveAreaCheckpoints(self.Session.Area);
                     // Places user at start of level
@@ -51,9 +56,11 @@ namespace Celeste.Mod.CelesteArchipelago
                 case DeathLinkMode.ChapterNoGoal:
                     if (ArchipelagoController.Instance.VictoryCondition == ConvertLevelToVictoryCondition(self.Session.Area))
                     {
-                        // Is Goal Level
+                        // Is Goal Level, so don't restart
                         break;
                     }
+                    
+                    ArchipelagoController.Instance.FlushDeathLinkMessage();
 
                     // Re-Lock Sub-Chapters
                     ArchipelagoController.Instance.CheckpointState.RemoveAreaCheckpoints(self.Session.Area);
@@ -69,7 +76,6 @@ namespace Celeste.Mod.CelesteArchipelago
 
         private static void RestartChapter(Level level)
         {
-            ArchipelagoController.Instance.DeathLinkStatus = DeathLinkStatus.Dying;
             level.DoScreenWipe(wipeIn: false, delegate
             {
                 Monocle.Engine.Scene = new LevelExit(LevelExit.Mode.Restart, level.Session);
